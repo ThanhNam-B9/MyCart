@@ -1,15 +1,30 @@
-import { Link } from 'react-router-dom'
+import { Link, createSearchParams, useNavigate } from 'react-router-dom'
 import Popover from '../Popoper'
-import { logoutAccount } from 'src/api/auth.api'
+import authApi from 'src/api/auth.api'
 import { useContext } from 'react'
 import { AppContext } from 'src/contexts/appContext'
 import { useMutation } from '@tanstack/react-query'
-
+import useQueryConfig from 'src/hooks/useQueryConfig'
+import { useForm } from 'react-hook-form'
+import { Schema, schema } from 'src/utils/rules'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { omit } from 'lodash'
+import path from 'src/constants/path'
+type FormData = Pick<Schema, 'name'>
+const nameSchema = schema.pick(['name'])
 export default function Header() {
-  const { isAuthenticated, setIsAuthenticated, profile } = useContext(AppContext)
+  const queryConfig = useQueryConfig()
+  const navigate = useNavigate()
 
+  const { register, handleSubmit } = useForm<FormData>({
+    defaultValues: {
+      name: ''
+    },
+    resolver: yupResolver(nameSchema)
+  })
+  const { isAuthenticated, setIsAuthenticated, profile } = useContext(AppContext)
   const logoutAccountMutation = useMutation({
-    mutationFn: logoutAccount,
+    mutationFn: authApi.logoutAccount,
     onSuccess: () => {
       setIsAuthenticated(false)
     }
@@ -17,6 +32,16 @@ export default function Header() {
   const handleLogoutWithAccount = () => {
     logoutAccountMutation.mutate()
   }
+  const onSubmitSearch = handleSubmit((data) => {
+    console.log(data)
+    navigate({
+      pathname: path.home,
+      search: createSearchParams({
+        name: data.name
+      }).toString()
+    })
+  })
+
   return (
     <div className='pb-5 pt-2 bg-[linear-gradient(-180deg,#f53d2d,#f63)]'>
       <div className='container'>
@@ -60,7 +85,7 @@ export default function Header() {
           </Popover>
           {isAuthenticated && (
             <Popover
-              className='flex items-center py-1 mr-4 hover:text-gray-300 cursor-pointer '
+              className='flex items-center py-1 mr-4 hover:text-gray-300 cursor-pointer'
               renderPopover={
                 <div className='bg-white relative shadow-md rounded-sm border border-gray-200'>
                   <div className='flex flex-col text-start'>
@@ -122,9 +147,13 @@ export default function Header() {
               <input
                 placeholder='TÌm kiếm sản phẩm'
                 type='text'
+                {...register('name')}
                 className='text-black px-3 py-2 flex-grow border-none outline-none bg-transparent'
               />
-              <button className='rounded-sm py-2 px-6 flex-shrink-0 bg-orange hover:opacity-90'>
+              <button
+                className='rounded-sm py-2 px-6 flex-shrink-0 bg-orange hover:opacity-90'
+                onClick={onSubmitSearch}
+              >
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   fill='none'

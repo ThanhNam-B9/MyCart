@@ -8,6 +8,7 @@ import Profile from './pages/Profile'
 import { useContext } from 'react'
 import { AppContext } from './contexts/appContext'
 import path from './constants/path'
+import ProductDetail from './pages/ProductDetail'
 
 export default function useRouterElements() {
   function ProtectedRouter() {
@@ -54,6 +55,15 @@ export default function useRouterElements() {
           )
         }
       ]
+    },
+    {
+      path: path.productDetail,
+      index: true,
+      element: (
+        <MainLayout>
+          <ProductDetail />
+        </MainLayout>
+      )
     },
     {
       path: '',

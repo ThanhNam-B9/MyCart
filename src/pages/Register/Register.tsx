@@ -9,7 +9,7 @@ import {
   schema
 } from 'src/utils/rules'
 import Input from 'src/components/Input'
-import { registerAccount } from 'src/api/auth.api'
+import authApi from 'src/api/auth.api'
 import { omit } from 'lodash'
 import { isAxiosUnprocessableEntityError } from 'src/utils/utils'
 import { ErrorResponseApi } from 'src/types/utils.type'
@@ -30,7 +30,7 @@ export default function Register() {
     formState: { errors }
   } = useForm<FormData>({ resolver: yupResolver(schema) })
   const registerAccountMutition = useMutation({
-    mutationFn: (body: Omit<FormData, 'repassword'>) => registerAccount(body)
+    mutationFn: (body: Omit<FormData, 'repassword'>) => authApi.registerAccount(body)
   })
   const onSubmit = handleSubmit((data) => {
     const body = omit(data, ['repassword'])
