@@ -4,16 +4,14 @@ import authApi from 'src/api/auth.api'
 import { useContext } from 'react'
 import { AppContext } from 'src/contexts/appContext'
 import { useMutation } from '@tanstack/react-query'
-import useQueryConfig from 'src/hooks/useQueryConfig'
 import { useForm } from 'react-hook-form'
 import { Schema, schema } from 'src/utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { omit } from 'lodash'
+
 import path from 'src/constants/path'
 type FormData = Pick<Schema, 'name'>
 const nameSchema = schema.pick(['name'])
 export default function Header() {
-  const queryConfig = useQueryConfig()
   const navigate = useNavigate()
 
   const { register, handleSubmit } = useForm<FormData>({

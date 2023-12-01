@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import DOMPurify from 'dompurify'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import productApi from 'src/api/product.api'
 import ProductRating from 'src/components/ProductRating'
 import { Product as ProductType, ProductListConfig } from 'src/types/product.type'
-import { formatCurrency, formatNumberToSocialStyle, rateSale } from 'src/utils/utils'
+import { formatCurrency, formatNumberToSocialStyle, getIdFormNameId, rateSale } from 'src/utils/utils'
 import Product from '../PoductList/Product'
 import QuantityController from 'src/components/QuantityController'
 
@@ -13,10 +13,12 @@ export default function ProductDetail() {
   const [currentIndexImg, setCurrentIndexImg] = useState([0, 5])
   const [activeImg, setActiveImg] = useState('')
   const [buyCount, setBuyCount] = useState(1)
-  const { id } = useParams()
+  const { nameId } = useParams()
+  const id = getIdFormNameId(nameId as string)
+  const imgRef = useRef()
   const { data: productData } = useQuery({
-    queryKey: ['product', id],
-    queryFn: () => productApi.getDetailProduct(id as string)
+    queryKey: ['product', nameId],
+    queryFn: () => productApi.getDetailProduct(id)
   })
 
   const product = productData?.data?.data
@@ -32,6 +34,27 @@ export default function ProductDetail() {
     enabled: Boolean(product)
   })
 
+  const handleZome = (e: React.MouseEvent<HTMLImageElement, MouseEvent>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    // console.log(rect)
+    const images = imgRef.current as HTMLImageElement
+    const { naturalHeight, naturalWidth } = images
+    // Cách 1 : xử lý event bubble
+    // const { offsetX, offsetY } = e.nativeEvent
+    // Cách 2 : không cần xử lý event bubble
+    const offsetX = e.pageX - (rect.x + window.scrollX)
+    const offsetY = e.pageY - (rect.y + window.scrollY)
+    const top = offsetY * (1 - naturalHeight / rect.height)
+    const left = offsetX * (1 - naturalWidth / rect.width)
+    images.style.width = naturalWidth + 'px'
+    images.style.height = naturalHeight + 'px'
+    images.style.maxWidth = 'unset'
+    images.style.top = top + 'px'
+    images.style.left = left + 'px'
+  }
+  const handleRestZoom = () => {
+    imgRef?.current.removeAttribute('style')
+  }
   useEffect(() => {
     if (product && product?.images.length > 0) {
       setActiveImg(product?.images[0])
@@ -60,11 +83,16 @@ export default function ProductDetail() {
         <div className='bg-white p-4 shadow '>
           <div className='grid grid-cols-12 gap-9'>
             <div className='col-span-5'>
-              <div className='relative w-full pt-[100%] shadow rounded-sm'>
+              <div
+                className='relative w-full pt-[100%] shadow rounded-sm overflow-hidden cursor-zoom-in'
+                onMouseMove={handleZome}
+                onMouseLeave={handleRestZoom}
+              >
                 <img
                   src={activeImg}
                   alt={product.name}
-                  className='absolute top-0 left-0  h-full w-full bg-white object-cover'
+                  className='absolute top-0 left-0  h-full w-full bg-white object-cover pointer-events-none'
+                  ref={imgRef}
                 />
               </div>
               <div className='relative mt-4 grid grid-cols-5 gap-1'>

@@ -32,14 +32,21 @@ export default function QuantityController({
   }
   const ontype = (e: React.ChangeEvent<HTMLInputElement>) => {
     // console.log(e.target.value)
-
     let _value = Number(e.target.value)
     if (max !== undefined && _value > max) {
       _value = max
     } else if (_value < 1) {
-      _value = 1
+      value = value - 1
     }
     onType && onType(_value)
+  }
+  const handleValue = () => {
+    let _value = Number(value)
+
+    if (_value <= 0) {
+      _value = 1
+      onType && onType(_value)
+    }
   }
   return (
     <div className={'flex items-center ' + classNameWrapper}>
@@ -59,11 +66,12 @@ export default function QuantityController({
         </svg>
       </button>
       <InputNumber
-        value={value}
+        value={value ? value : ''}
         className=''
         classNameError=''
         classNameInput='h-8 w-14 border-y border-gray-300 p-1 text-center outline-none'
         onChange={(e) => ontype(e)}
+        onBlur={handleValue}
       />
       <button
         className='  flex items-center justify-center h-8 w-8 rounded-r-sm border border-gray-300 text-gray-600'
