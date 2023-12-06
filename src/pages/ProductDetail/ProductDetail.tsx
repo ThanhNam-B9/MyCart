@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import DOMPurify from 'dompurify'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -8,14 +8,18 @@ import { Product as ProductType, ProductListConfig } from 'src/types/product.typ
 import { formatCurrency, formatNumberToSocialStyle, getIdFormNameId, rateSale } from 'src/utils/utils'
 import Product from '../PoductList/Product'
 import QuantityController from 'src/components/QuantityController'
+import purchasesApi from 'src/api/purchases.api'
+import { purchasesStatus } from 'src/constants/purchase'
+import { toast } from 'react-toastify'
 
 export default function ProductDetail() {
   const [currentIndexImg, setCurrentIndexImg] = useState([0, 5])
   const [activeImg, setActiveImg] = useState('')
-  const [buyCount, setBuyCount] = useState(1)
+  const [buyCount, setBuyCount] = useState<number>(1)
   const { nameId } = useParams()
   const id = getIdFormNameId(nameId as string)
   const imgRef = useRef()
+  const queryClient = useQueryClient()
   const { data: productData } = useQuery({
     queryKey: ['product', nameId],
     queryFn: () => productApi.getDetailProduct(id)
@@ -33,7 +37,18 @@ export default function ProductDetail() {
     staleTime: 3 * 60 * 1000,
     enabled: Boolean(product)
   })
-
+  const addToCartMutation = useMutation({
+    mutationFn: (body: { product_id: string; buy_count: number }) => purchasesApi.addToCart(body)
+  })
+  const handleAddToCart = () => {
+    const body = { product_id: product?._id as string, buy_count: buyCount }
+    addToCartMutation.mutate(body, {
+      onSuccess: (data) => {
+        toast.success(data.data.message, { autoClose: 1500 })
+        queryClient.invalidateQueries({ queryKey: ['listCart', { status: purchasesStatus.inCart }] })
+      }
+    })
+  }
   const handleZome = (e: React.MouseEvent<HTMLImageElement, MouseEvent>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     // console.log(rect)
@@ -181,8 +196,10 @@ export default function ProductDetail() {
                 <div className='ml-6 etxt-sm text-gray-500'>{product.quantity} sản phẩm có sẵn</div>
               </div>
               <div className='mt-8 flex items-center'>
-                <button className='flex h-12 items-center justify-center px-4 rounded-sm border border-orange bg-orange/10 capitalize text-orange shadow-sm hover:bg-orange/5'>
-                  {' '}
+                <button
+                  className='flex h-12 items-center justify-center px-4 rounded-sm border border-orange bg-orange/10 capitalize text-orange shadow-sm hover:bg-orange/5'
+                  onClick={handleAddToCart}
+                >
                   <svg
                     enableBackground='new 0 0 15 15'
                     viewBox='0 0 15 15'
@@ -206,7 +223,7 @@ export default function ProductDetail() {
                       <line fill='none' strokeLinecap='round' strokeMiterlimit={10} x1={9} x2={9} y1='8.5' y2='5.5' />
                     </g>
                   </svg>
-                  thêm vào giỏ hàng
+                  Thêm vào giỏ hàng
                 </button>
                 <button className='ml-4 flex h-12 items-center justify-center px-6 rounded-sm  min-w-[5rem] bg-orange capitalize text-white shadow-sm hover:bg-orange/80'>
                   Mua ngay

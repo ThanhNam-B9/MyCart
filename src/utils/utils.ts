@@ -30,10 +30,10 @@ const removeSpecialCharacter = (str: string) => {
   return str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'|\"|\&|\#|\[|\]|~|\$|_|`|-|{|}|\||\\/g, '')
 }
 export const generateNameId = ({ name, id }: { name: string; id: string }) => {
-  return removeSpecialCharacter(name).replace(/\s/g, '-') + `-i.${id}`
+  return removeSpecialCharacter(name).replace(/\s/g, '-') + `-i-${id}`
 }
 
 export const getIdFormNameId = (nameId: string) => {
-  const arr = nameId.split('-i.')
+  const arr = nameId.split('-i-')
   return arr[arr.length - 1]
 }

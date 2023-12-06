@@ -17,7 +17,8 @@ import Button from 'src/components/Button'
 import { useContext } from 'react'
 import { AppContext } from 'src/contexts/appContext'
 import path from 'src/constants/path'
-type FormData = Schema
+type FormData = Pick<Schema, 'email' | 'password' | 'repassword'>
+const registerSchema = schema.pick(['email', 'password', 'repassword'])
 export default function Register() {
   const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const {
@@ -28,7 +29,7 @@ export default function Register() {
     setError,
     // getValues,
     formState: { errors }
-  } = useForm<FormData>({ resolver: yupResolver(schema) })
+  } = useForm<FormData>({ resolver: yupResolver(registerSchema) })
   const registerAccountMutition = useMutation({
     mutationFn: (body: Omit<FormData, 'repassword'>) => authApi.registerAccount(body)
   })

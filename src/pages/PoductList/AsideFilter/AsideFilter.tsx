@@ -12,6 +12,7 @@ import { NoUndefineField } from 'src/types/utils.type'
 import RatingStar from '../RatingStars'
 import { omit } from 'lodash'
 import { QueryConfig } from 'src/hooks/useQueryConfig'
+import { ObjectSchema } from 'yup'
 interface Props {
   queryConfig: QueryConfig
   categories: Category[]
@@ -30,7 +31,7 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
       price_min: '',
       price_max: ''
     },
-    resolver: yupResolver(priceSchema),
+    resolver: yupResolver(priceSchema as ObjectSchema<FormData>),
     shouldFocusError: false
   })
   const { category } = queryConfig

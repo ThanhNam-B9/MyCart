@@ -1,11 +1,12 @@
+import { useState } from 'react'
 import InputNumber, { InputNumberProps } from '../InputNumber'
 
 interface Props extends InputNumberProps {
   max?: number
-  onIncrease: (value: number) => void
-  onDecrease: (value: number) => void
-  onType: (value: number) => void
-  value: number
+  onIncrease?: (value: number) => void
+  onDecrease?: (value: number) => void
+  onType?: (value: number) => void
+  value?: number
   classNameWrapper?: string
 }
 export default function QuantityController({
@@ -16,32 +17,37 @@ export default function QuantityController({
   value,
   classNameWrapper = 'ml-10'
 }: Props) {
+  const [localValue, setLocalValue] = useState(value || 0)
+
   const increase = () => {
-    let _value = Number(value) + 1
-    if (max !== undefined && value > max) {
+    let _value = Number(value || localValue) + 1
+    if (max !== undefined && value && value >= max) {
       _value = max
     }
     onIncrease && onIncrease(_value)
+    setLocalValue(_value)
   }
   const decrease = () => {
-    let _value = Number(value) - 1
+    let _value = Number(value || localValue) - 1
     if (_value < 1) {
       _value = 1
     }
-    onDecrease && onDecrease(value)
+    onDecrease && onDecrease(_value)
+    setLocalValue(_value)
   }
   const ontype = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // console.log(e.target.value)
     let _value = Number(e.target.value)
     if (max !== undefined && _value > max) {
       _value = max
     } else if (_value < 1) {
-      value = value - 1
+      value = value && value - 1
     }
     onType && onType(_value)
+    setLocalValue(_value)
   }
-  const handleValue = () => {
+  const handleOnBlurValue = () => {
     let _value = Number(value)
+    console.log('_value', _value)
 
     if (_value <= 0) {
       _value = 1
@@ -66,15 +72,15 @@ export default function QuantityController({
         </svg>
       </button>
       <InputNumber
-        value={value ? value : ''}
+        value={value || localValue}
         className=''
         classNameError=''
         classNameInput='h-8 w-14 border-y border-gray-300 p-1 text-center outline-none'
         onChange={(e) => ontype(e)}
-        onBlur={handleValue}
+        onBlur={handleOnBlurValue}
       />
       <button
-        className='  flex items-center justify-center h-8 w-8 rounded-r-sm border border-gray-300 text-gray-600'
+        className=' flex items-center justify-center h-8 w-8 rounded-r-sm border border-gray-300 text-gray-600'
         onClick={increase}
       >
         <svg

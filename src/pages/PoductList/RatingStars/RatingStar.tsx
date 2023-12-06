@@ -1,4 +1,5 @@
 import { omit } from 'lodash'
+import { Fragment } from 'react'
 import { createSearchParams, useNavigate } from 'react-router-dom'
 import path from 'src/constants/path'
 import { QueryConfig } from 'src/hooks/useQueryConfig'
@@ -34,8 +35,8 @@ export default function RatingStar({ queryConfig }: Props) {
                     .map((_, index) => {
                       if (5 - i > index) {
                         return (
-                          <>
-                            <svg viewBox='0 0 9.5 8' className='w-5 h-3 ' key={index}>
+                          <Fragment key={index}>
+                            <svg viewBox='0 0 9.5 8' className='w-5 h-3 '>
                               <defs>
                                 <linearGradient id='ratingStarGradient' x1='50%' x2='50%' y1='0%' y2='100%'>
                                   <stop offset={0} stopColor='#ffca11' />
@@ -61,7 +62,7 @@ export default function RatingStar({ queryConfig }: Props) {
                                 </g>
                               </g>
                             </svg>
-                          </>
+                          </Fragment>
                         )
                       }
                       return (

@@ -3,17 +3,23 @@ import Popover from '../Popoper'
 import authApi from 'src/api/auth.api'
 import { useContext } from 'react'
 import { AppContext } from 'src/contexts/appContext'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { Schema, schema } from 'src/utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 import path from 'src/constants/path'
+import purchasesApi from 'src/api/purchases.api'
+import { purchasesStatus } from 'src/constants/purchase'
+import noProductInCart from 'src/assets/images/no_cart.png'
+import { formatCurrency } from 'src/utils/utils'
+import { queryClient } from 'src/main'
+
 type FormData = Pick<Schema, 'name'>
 const nameSchema = schema.pick(['name'])
+const MAX_PURCHASES = 5
 export default function Header() {
   const navigate = useNavigate()
-
   const { register, handleSubmit } = useForm<FormData>({
     defaultValues: {
       name: ''
@@ -25,6 +31,7 @@ export default function Header() {
     mutationFn: authApi.logoutAccount,
     onSuccess: () => {
       setIsAuthenticated(false)
+      queryClient.removeQueries({ queryKey: ['listCart', { status: purchasesStatus.inCart }], exact: true })
     }
   })
   const handleLogoutWithAccount = () => {
@@ -39,6 +46,13 @@ export default function Header() {
       }).toString()
     })
   })
+  const { data: listCartData } = useQuery({
+    queryKey: ['listCart', { status: purchasesStatus.inCart }],
+    queryFn: () => purchasesApi.getPurchases({ status: purchasesStatus.inCart }),
+    enabled: isAuthenticated
+  })
+  const purchasesList = listCartData?.data.data
+  console.log('abc', purchasesList)
 
   return (
     <div className='pb-5 pt-2 bg-[linear-gradient(-180deg,#f53d2d,#f63)]'>
@@ -143,7 +157,7 @@ export default function Header() {
           <form className='col-span-9'>
             <div className='bg-white rounded-sm p-1 flex'>
               <input
-                placeholder='TÌm kiếm sản phẩm'
+                placeholder='Tìm kiếm sản phẩm'
                 type='text'
                 {...register('name')}
                 className='text-black px-3 py-2 flex-grow border-none outline-none bg-transparent'
@@ -171,74 +185,50 @@ export default function Header() {
           </form>
           <div className='cols-span-1 text-white ml-1'>
             <Popover
-              className='flex items-center justify-center hover:text-gray-300 cursor-pointer text-center'
+              className='flex items-center justify-center hover:text-gray-300 cursor-pointer text-center relative'
               renderPopover={
                 <div className='bg-white relative shadow-md rounded-sm border border-gray-200 max-w-[400px] text-sm'>
-                  <div className='col-2 p-4'>
-                    <div className='text-gray-400 capitalize '>Sản phẩm mới thêm</div>
-                    <div className='mt-5'>
-                      <div className='mt-4 flex cursor-pointer'>
-                        <div className='flex-shrink-0'>
-                          <img
-                            src='https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-lfc2qumnpdo59d'
-                            alt='ảnh ví'
-                            className='w-11 h-11 object-cover'
-                          />
-                        </div>
-                        <div className='flex-grow ml-2 overflow-hidden'>
-                          <div className='truncate'>
-                            Ví Vải ZILLA Nam Nữ Polyester Siêu Bền Đẹp Chống Nước Unisex local brand chính hãng Midori M
-                            Studio
-                          </div>
-                        </div>
-                        <div className='ml-10 flex-shrink-0'>
-                          <span className='text-orange'>₫195.000</span>
-                        </div>
+                  {purchasesList && purchasesList?.length > 0 ? (
+                    <div className='col-2 p-4'>
+                      <div className='text-gray-400 capitalize '>Sản phẩm mới thêm</div>
+                      <div className='mt-5'>
+                        {purchasesList.slice(0, MAX_PURCHASES)?.map((purchase) => {
+                          return (
+                            <div className='p-2  flex hover:bg-gray-100' key={purchase._id}>
+                              <div className='flex-shrink-0'>
+                                <img src={purchase.product.image} alt='ảnh ví' className='w-11 h-11 object-cover' />
+                              </div>
+                              <div className='flex-grow ml-2 overflow-hidden'>
+                                <div className='truncate'>{purchase.product.name}</div>
+                              </div>
+                              <div className='ml-10 flex-shrink-0'>
+                                <span className='text-orange'> ₫{formatCurrency(purchase.product.price)}</span>
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
-                      <div className='mt-4 flex cursor-pointer'>
-                        <div className='flex-shrink-0'>
-                          <img
-                            src='https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-lfc2qumnpdo59d'
-                            alt='ảnh ví'
-                            className='w-11 h-11 object-cover'
-                          />
+                      <div className='mt-5 flex items-center justify-between text-gray-500'>
+                        <div className='text-xs'>
+                          {purchasesList.length > MAX_PURCHASES ? purchasesList.length - MAX_PURCHASES : 0} Thêm hàng
+                          vào giỏ
                         </div>
-                        <div className='flex-grow ml-2 overflow-hidden'>
-                          <div className='truncate'>
-                            Ví Vải ZILLA Nam Nữ Polyester Siêu Bền Đẹp Chống Nước Unisex local brand chính hãng Midori M
-                            Studio
-                          </div>
-                        </div>
-                        <div className='ml-10 flex-shrink-0'>
-                          <span className='text-orange'>₫195.000</span>
-                        </div>
-                      </div>
-                      <div className='mt-4 flex cursor-pointer'>
-                        <div className='flex-shrink-0'>
-                          <img
-                            src='https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-lfc2qumnpdo59d'
-                            alt='ảnh ví'
-                            className='w-11 h-11 object-cover'
-                          />
-                        </div>
-                        <div className='flex-grow ml-3 overflow-hidden'>
-                          <div className='truncate'>
-                            Ví Vải ZILLA Nam Nữ Polyester Siêu Bền Đẹp Chống Nước Unisex local brand chính hãng Midori M
-                            Studio
-                          </div>
-                        </div>
-                        <div className='ml-10 flex-shrink-0'>
-                          <span className='text-orange'>₫195.000</span>
-                        </div>
+                        <Link
+                          to={path.cart}
+                          className='capitalize bg-orange hover:bg-opacity-90 px-4 py-2 text-white rounded-sm'
+                        >
+                          Xem giỏ hàng
+                        </Link>
                       </div>
                     </div>
-                    <div className='mt-5 flex items-center justify-between text-gray-500'>
-                      <div className='text-xs'>Thêm hàng vào giỏ</div>
-                      <button className='capitalize bg-orange hover:bg-opacity-90 px-4 py-2 text-white rounded-sm'>
-                        Xem giỏ hàng
-                      </button>
+                  ) : (
+                    <div className='py-16 px-20 h-[250px] w-[350px] '>
+                      <div className='flex justify-center items-center flex-col'>
+                        <img src={noProductInCart} alt='no product in cart' className='w-24 h-24' />
+                        <h3 className='mt-3'>Chưa có sản phẩm</h3>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               }
             >
@@ -256,6 +246,11 @@ export default function Header() {
                   d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z'
                 />
               </svg>
+              {purchasesList && (
+                <div className='absolute top-[-8px] left-[50%] bg-white px-[7px] py-[2px] rounded-full flex justify-center items-center '>
+                  <span className='text-orange text-xs '> {purchasesList?.length}</span>
+                </div>
+              )}
             </Popover>
             <Link to='/' className=''></Link>
           </div>
