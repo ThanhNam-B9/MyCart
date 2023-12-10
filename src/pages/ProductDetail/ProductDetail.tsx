@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import DOMPurify from 'dompurify'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import productApi from 'src/api/product.api'
 import ProductRating from 'src/components/ProductRating'
 import { Product as ProductType, ProductListConfig } from 'src/types/product.type'
@@ -11,6 +11,7 @@ import QuantityController from 'src/components/QuantityController'
 import purchasesApi from 'src/api/purchases.api'
 import { purchasesStatus } from 'src/constants/purchase'
 import { toast } from 'react-toastify'
+import path from 'src/constants/path'
 
 export default function ProductDetail() {
   const [currentIndexImg, setCurrentIndexImg] = useState([0, 5])
@@ -18,7 +19,8 @@ export default function ProductDetail() {
   const [buyCount, setBuyCount] = useState<number>(1)
   const { nameId } = useParams()
   const id = getIdFormNameId(nameId as string)
-  const imgRef = useRef()
+  const imgRef = useRef<HTMLImageElement>(null)
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { data: productData } = useQuery({
     queryKey: ['product', nameId],
@@ -49,10 +51,21 @@ export default function ProductDetail() {
       }
     })
   }
+  const handleBuyNow = async () => {
+    const body = { product_id: product?._id as string, buy_count: buyCount }
+
+    const res = await addToCartMutation.mutateAsync(body)
+    console.log('res', res)
+    navigate(path.cart, {
+      state: {
+        purchaseId: res.data.data._id
+      }
+    })
+  }
   const handleZome = (e: React.MouseEvent<HTMLImageElement, MouseEvent>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     // console.log(rect)
-    const images = imgRef.current as HTMLImageElement
+    const images = imgRef?.current as HTMLImageElement
     const { naturalHeight, naturalWidth } = images
     // Cách 1 : xử lý event bubble
     // const { offsetX, offsetY } = e.nativeEvent
@@ -68,8 +81,9 @@ export default function ProductDetail() {
     images.style.left = left + 'px'
   }
   const handleRestZoom = () => {
-    imgRef?.current.removeAttribute('style')
+    imgRef?.current?.removeAttribute('style')
   }
+
   useEffect(() => {
     if (product && product?.images.length > 0) {
       setActiveImg(product?.images[0])
@@ -225,7 +239,10 @@ export default function ProductDetail() {
                   </svg>
                   Thêm vào giỏ hàng
                 </button>
-                <button className='ml-4 flex h-12 items-center justify-center px-6 rounded-sm  min-w-[5rem] bg-orange capitalize text-white shadow-sm hover:bg-orange/80'>
+                <button
+                  className='ml-4 flex h-12 items-center justify-center px-6 rounded-sm  min-w-[5rem] bg-orange capitalize text-white shadow-sm hover:bg-orange/80'
+                  onClick={handleBuyNow}
+                >
                   Mua ngay
                 </button>
               </div>
@@ -234,7 +251,7 @@ export default function ProductDetail() {
         </div>
       </div>
       <div className='container'>
-        <div className='mt-8 bg-white p-4 shadow p-2'>
+        <div className='mt-8 bg-white p-4 shadow '>
           <div className='rounded bg-gray-50 p-4 text-lg capitalize text-slate-700'>Mô tả sản phẩm</div>
           <div
             className='mx-4 mt-12 text-sm leading-loose'

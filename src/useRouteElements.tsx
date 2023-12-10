@@ -10,6 +10,7 @@ import { AppContext } from './contexts/appContext'
 import path from './constants/path'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
+import CartLayout from './layout/CartLayout'
 
 export default function useRouterElements() {
   function ProtectedRouter() {
@@ -58,9 +59,9 @@ export default function useRouterElements() {
         {
           path: path.cart,
           element: (
-            <MainLayout>
+            <CartLayout>
               <Cart />
-            </MainLayout>
+            </CartLayout>
           )
         }
       ]

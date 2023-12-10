@@ -8,6 +8,7 @@ interface Props extends InputNumberProps {
   onType?: (value: number) => void
   value?: number
   classNameWrapper?: string
+  onHandleBlur?: (value: number) => void
 }
 export default function QuantityController({
   max,
@@ -15,10 +16,10 @@ export default function QuantityController({
   onDecrease,
   onType,
   value,
-  classNameWrapper = 'ml-10'
+  classNameWrapper = 'ml-10',
+  onHandleBlur
 }: Props) {
   const [localValue, setLocalValue] = useState(value || 0)
-
   const increase = () => {
     let _value = Number(value || localValue) + 1
     if (max !== undefined && value && value >= max) {
@@ -46,13 +47,14 @@ export default function QuantityController({
     setLocalValue(_value)
   }
   const handleOnBlurValue = () => {
-    let _value = Number(value)
-    console.log('_value', _value)
+    let _value = Number(value || localValue)
 
     if (_value <= 0) {
       _value = 1
       onType && onType(_value)
     }
+
+    onHandleBlur && onHandleBlur(_value)
   }
   return (
     <div className={'flex items-center ' + classNameWrapper}>

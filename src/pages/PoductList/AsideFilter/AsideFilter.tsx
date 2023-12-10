@@ -11,8 +11,9 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { NoUndefineField } from 'src/types/utils.type'
 import RatingStar from '../RatingStars'
 import { omit } from 'lodash'
-import { QueryConfig } from 'src/hooks/useQueryConfig'
+
 import { ObjectSchema } from 'yup'
+import { QueryConfig } from 'src/hooks/useQueryConfig'
 interface Props {
   queryConfig: QueryConfig
   categories: Category[]
