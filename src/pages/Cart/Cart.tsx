@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { produce } from 'immer'
-import _ from 'lodash'
+import { keyBy } from 'lodash'
 import { useEffect, useContext, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -21,9 +21,11 @@ export interface ExtentPurshases extends Purchases {
 
 function Cart() {
   const { purchasesListOpt, setPurchasesListOpt } = useContext(AppContext)
+  // const [purchasesListOpt, setPurchasesListOpt] = useState<ExtentPurshases[]>([])
+
   const location = useLocation()
-  const purchaseIdNow = (location.state as { purchaseId: string })?.purchaseId
-  console.log('location', purchaseIdNow)
+  const purchaseIdNow = (location.state as { purchaseId: string | null })?.purchaseId
+
   const { data: listCartData, refetch } = useQuery({
     queryKey: ['listCart', { status: purchasesStatus.inCart }],
     queryFn: () => purchasesApi.getPurchases({ status: purchasesStatus.inCart })
@@ -77,18 +79,13 @@ function Cart() {
     const count = currentValue.buy_count || 1
     return accumulator + (currentValue.price_before_discount - currentValue.price) * count
   }, 0)
-  useEffect(() => {
-    return () => {
-      history.replaceState(null, '')
-    }
-  }, [])
+
   useEffect(() => {
     setPurchasesListOpt((prev) => {
-      const purchasesListOptNew = _.keyBy(prev, '_id')
+      const purchasesListOptNew = keyBy(prev, '_id')
       return (
         purchasesList?.map((item) => {
           const isCheckPurchaseNow = purchaseIdNow === item._id
-
           return {
             ...item,
             disable: false,
@@ -97,7 +94,13 @@ function Cart() {
         }) || []
       )
     })
-  }, [purchasesList, purchaseIdNow, setPurchasesListOpt])
+    console.log('sdahsksssssdhasj', purchasesList)
+  }, [purchasesList, purchaseIdNow])
+  useEffect(() => {
+    return () => {
+      history.replaceState(null, '')
+    }
+  }, [])
   const handleCheckPurshase = (purshaseIndex: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
     // cách 1 chạy map
     // setPurchasesListOpt(

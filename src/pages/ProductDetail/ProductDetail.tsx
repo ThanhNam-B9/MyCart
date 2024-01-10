@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import DOMPurify from 'dompurify'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import productApi from 'src/api/product.api'
 import ProductRating from 'src/components/ProductRating'
 import { Product as ProductType, ProductListConfig } from 'src/types/product.type'
@@ -18,7 +18,9 @@ export default function ProductDetail() {
   const [activeImg, setActiveImg] = useState('')
   const [buyCount, setBuyCount] = useState<number>(1)
   const { nameId } = useParams()
+
   const id = getIdFormNameId(nameId as string)
+
   const imgRef = useRef<HTMLImageElement>(null)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -28,6 +30,7 @@ export default function ProductDetail() {
   })
 
   const product = productData?.data?.data
+
   const currentImages = useMemo(
     () => (product ? product?.images.slice(...currentIndexImg) : []),
     [product, currentIndexImg]
@@ -105,7 +108,23 @@ export default function ProductDetail() {
   const handleBuyCount = (value: number) => {
     setBuyCount(value)
   }
-  if (!product) return null
+  if (!product)
+    return (
+      <div className='flex items-center justify-center w-screen bg-white '>
+        <div className='px-40 my-20 py-20 bg-orange rounded-md shadow-xl'>
+          <div className='flex flex-col items-center'>
+            <p className='mb-8 text-center text-white md:text-lg'>Không thể tải Shop này. Vui lòng chạm và thử lại.</p>
+
+            <Link
+              to={path.home}
+              className=' w-52 h-10 rounded-sm text-center   uppercase bg-white text-orange text-sm hover:shadow-sm flex items-center justify-center'
+            >
+              Trang chủ
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   return (
     <div className='bg-gray-200 py-6'>
       <div className='container'>

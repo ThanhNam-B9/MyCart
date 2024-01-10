@@ -42,7 +42,6 @@ export default function Register() {
       },
       onError: (error) => {
         if (isAxiosUnprocessableEntityError<ErrorResponseApi<Omit<FormData, 'repassword'>>>(error)) {
-          const formError = error.response?.data.data
           // if (formError?.email) {
           //   setError('email', {
           //     message: formError.email,
@@ -55,6 +54,7 @@ export default function Register() {
           //     type: 'Server'
           //   })
           // }
+          const formError = error.response?.data.data
           if (formError) {
             Object.keys(formError).forEach((key) => {
               setError(key as keyof Omit<FormData, 'repassword'>, {

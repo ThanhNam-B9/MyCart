@@ -4,6 +4,7 @@ import HttpStatusCode from 'src/constants/httpStatusCode.enum'
 import { AuthResponse } from 'src/types/auth.type'
 import { getAccessTokenToLS, removeAuthLS, saveAccessTokenToLS, saveProfileToLS } from './auth'
 import path from 'src/constants/path'
+import { config } from 'src/constants/config'
 
 class Http {
   instance: AxiosInstance
@@ -11,7 +12,7 @@ class Http {
   constructor() {
     this.accessToken = getAccessTokenToLS()
     this.instance = axios.create({
-      baseURL: 'https://api-ecom.duthanhduoc.com/',
+      baseURL: config.baseURL,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json'
@@ -49,6 +50,9 @@ class Http {
           const data: any | undefined = error.response?.data
           const message = data?.message || error.message
           toast.error(message)
+        }
+        if (error.response?.status === HttpStatusCode.Unauthorized) {
+          removeAuthLS()
         }
         return Promise.reject(error)
       }

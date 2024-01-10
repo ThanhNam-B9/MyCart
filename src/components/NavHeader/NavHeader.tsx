@@ -3,23 +3,25 @@ import Popover from '../Popoper'
 import { useContext } from 'react'
 import { AppContext } from 'src/contexts/appContext'
 import path from 'src/constants/path'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import authApi from 'src/api/auth.api'
 import { purchasesStatus } from 'src/constants/purchase'
-import { queryClient } from 'src/main'
-
+import { getAvtatar } from 'src/utils/utils'
 function NavHeader() {
-  const { isAuthenticated, setIsAuthenticated, profile } = useContext(AppContext)
+  const { isAuthenticated, setIsAuthenticated, profile, setProfile } = useContext(AppContext)
+  const queryClient = useQueryClient()
   const logoutAccountMutation = useMutation({
     mutationFn: authApi.logoutAccount,
     onSuccess: () => {
       setIsAuthenticated(false)
+      setProfile(null)
       queryClient.removeQueries({ queryKey: ['listCart', { status: purchasesStatus.inCart }], exact: true })
     }
   })
   const handleLogoutWithAccount = () => {
     logoutAccountMutation.mutate()
   }
+
   return (
     <div className='flex justify-end text-white text-sm '>
       <Popover
@@ -65,10 +67,13 @@ function NavHeader() {
           renderPopover={
             <div className='bg-white relative shadow-md rounded-sm border border-gray-200'>
               <div className='flex flex-col text-start'>
-                <Link to='/' className='py-2 px-3 text-sm text-start hover:text-orange hover:bg-slate-100'>
+                <Link to={path.profile} className='py-2 px-3 text-sm text-start hover:text-orange hover:bg-slate-100'>
                   Tài khoản của tôi
                 </Link>
-                <Link to='/' className='py-2 px-3 text-sm text-start hover:text-orange hover:bg-slate-100'>
+                <Link
+                  to={path.historyPurshases}
+                  className='py-2 px-3 text-sm text-start hover:text-orange hover:bg-slate-100'
+                >
                   Đơn hàng
                 </Link>
                 <button
@@ -81,20 +86,12 @@ function NavHeader() {
             </div>
           }
         >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth={1.5}
-            stroke='currentColor'
-            className='w-6 h-6'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z'
-            />
-          </svg>
+          <img
+            className='h-6 w-6 object-cover rounded-full fill-white'
+            src={getAvtatar(profile?.avatar)}
+            alt='avatar'
+          />
+
           <span className='ml-1'>{profile?.email}</span>
         </Popover>
       )}

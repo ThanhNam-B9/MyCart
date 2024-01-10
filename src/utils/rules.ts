@@ -3,6 +3,14 @@ import * as yup from 'yup'
 type Rules = {
   [key in 'email' | 'password' | 'repassword']?: RegisterOptions
 }
+const handleComfirmPassword = (name: string) => {
+  return yup
+    .string()
+    .required('Mật khẩu là bắt buộc')
+    .min(6, 'Ít nhất 6 kí tự')
+    .max(160, 'Không quá 160 kí tự')
+    .oneOf([yup.ref(name)], 'Mật khẩu không khớp !')
+}
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getRules = (getValues?: UseFormGetValues<any>): Rules => ({
   email: {
@@ -71,12 +79,7 @@ export const schema = yup.object({
     .min(5, 'Ít nhất 5 kí tự')
     .max(160, 'Không quá 100 kí tự'),
   password: yup.string().required('Mật khẩu là bắt buộc').min(6, 'Ít nhất 6 kí tự').max(160, 'Không quá 160 kí tự'),
-  repassword: yup
-    .string()
-    .required('Mật khẩu là bắt buộc')
-    .min(6, 'Ít nhất 6 kí tự')
-    .max(160, 'Không quá 160 kí tự')
-    .oneOf([yup.ref('password')], 'Mật khẩu không khớp !'),
+  repassword: handleComfirmPassword('password'),
   price_min: yup.string().test({
     name: 'price-not-allowed',
     message: 'Giá không phù hợp',
@@ -93,3 +96,16 @@ export const schema = yup.object({
 // export const loginShema = schema.omit(['repassword'])
 // export type loginShema = yup.InferType<typeof loginShema>
 export type Schema = yup.InferType<typeof schema>
+
+export const schemaUser = yup.object({
+  name: yup.string().max(160, 'Không vượt quá 160 ký tự !'),
+  phone: yup.string().max(20, 'Không vượt quá 20 kí tự !'),
+  address: yup.string().max(160, 'Không vượt quá 160 ký tự !'),
+  avatar: yup.string().max(1000, 'Không vượt quá 160 ký tự !'),
+  date_of_birth: yup.date().max(new Date(), 'Hãy chọn một ngày trong quá khứ!'),
+  password: schema.fields['password'] as yup.StringSchema<string, yup.AnyObject, undefined, ''>,
+  new_password: schema.fields['password'] as yup.StringSchema<string, yup.AnyObject, undefined, ''>,
+  // confirm_password: schema.fields['repassword']
+  confirm_password: handleComfirmPassword('new_password')
+})
+export type SchemaUser = yup.InferType<typeof schemaUser>

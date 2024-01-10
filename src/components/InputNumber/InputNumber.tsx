@@ -20,9 +20,6 @@ const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(function Inpu
   const [localValue, setLocalValue] = useState<string>(value as string)
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target
-    console.log('====================================')
-    console.log(value)
-    console.log('====================================')
     if (/^\d+$/.test(value) || value === '') {
       onChange && onChange(event)
       setLocalValue(value)
