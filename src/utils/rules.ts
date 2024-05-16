@@ -105,7 +105,6 @@ export const schemaUser = yup.object({
   date_of_birth: yup.date().max(new Date(), 'Hãy chọn một ngày trong quá khứ!'),
   password: schema.fields['password'] as yup.StringSchema<string, yup.AnyObject, undefined, ''>,
   new_password: schema.fields['password'] as yup.StringSchema<string, yup.AnyObject, undefined, ''>,
-  // confirm_password: schema.fields['repassword']
   confirm_password: handleComfirmPassword('new_password')
 })
 export type SchemaUser = yup.InferType<typeof schemaUser>

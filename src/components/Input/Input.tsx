@@ -1,16 +1,17 @@
 import { Fragment, InputHTMLAttributes, useState } from 'react'
-import { RegisterOptions, UseFormRegister } from 'react-hook-form'
+import { FieldPath, FieldValues, RegisterOptions, UseFormRegister } from 'react-hook-form'
 
-interface Props extends InputHTMLAttributes<HTMLInputElement> {
+interface Props<TFieldValues extends FieldValues = FieldValues> extends InputHTMLAttributes<HTMLInputElement> {
   classNameInput?: string
   classNameError?: string
   classNameEye?: string
   messageError?: string
   rules?: RegisterOptions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  register?: UseFormRegister<any>
+  register?: UseFormRegister<TFieldValues>
+  name: FieldPath<TFieldValues>
 }
-export const Input = ({
+export const Input = <TFieldValues extends FieldValues = FieldValues>({
   classNameError = 'mt-1 text-red-600 min-h-[1.25rem] text-sm text-start',
   classNameInput = 'p-3 w-full outline-none border border-gray-500 rounded-sm focus:shadow-sm',
   className,
@@ -20,7 +21,7 @@ export const Input = ({
   rules,
   register,
   ...rest
-}: Props) => {
+}: Props<TFieldValues>) => {
   const [openEye, setOpneEye] = useState<boolean>(false)
   const tonggleShow = () => {
     setOpneEye((prev) => !prev)
@@ -34,7 +35,7 @@ export const Input = ({
   const registerRules = register && name ? register(name, rules) : null
   return (
     <Fragment>
-      <div className={className}>
+      <div className={'relative ' + className}>
         <input {...rest} {...registerRules} className={classNameInput} type={handleType()} />
         {rest.type === 'password' && !openEye && (
           <svg

@@ -6,7 +6,7 @@ import UserApi, { BodyUpdateUser } from 'src/api/user.api'
 import Button from 'src/components/Button'
 import Input from 'src/components/Input'
 import InputNumber from 'src/components/InputNumber'
-import { SchemaUser, schemaUser } from 'src/utils/rules'
+import { schemaUser } from 'src/utils/rules'
 import DateSelect from '../../components/DateSelect'
 import { toast } from 'react-toastify'
 import { AppContext } from 'src/contexts/appContext'
@@ -59,10 +59,20 @@ function Info() {
   )
 }
 
-type FormData = Pick<SchemaUser, 'name' | 'phone' | 'avatar' | 'date_of_birth' | 'address'>
+// type FormData1 = Pick<SchemaUser, 'name' | 'phone' | 'avatar' | 'date_of_birth' | 'address'>
+
+type FormData = {
+  name: string | undefined
+  phone: string | undefined
+  address: string | undefined
+  avatar: string | undefined
+  date_of_birth: Date | undefined
+}
+
 type FormDataError = Omit<FormData, 'date_of_birth'> & {
   date_of_birth: string
 }
+
 const profileSchema = schemaUser.pick(['name', 'phone', 'avatar', 'date_of_birth', 'address'])
 function Profile() {
   const [file, setFile] = useState<File>()
@@ -75,7 +85,8 @@ function Profile() {
       name: '',
       phone: '',
       avatar: '',
-      date_of_birth: new Date(1990, 0, 1)
+      date_of_birth: new Date(1990, 0, 1),
+      address: ''
     },
     resolver: yupResolver(profileSchema)
   })

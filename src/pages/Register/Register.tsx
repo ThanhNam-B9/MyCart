@@ -10,7 +10,11 @@ import {
 } from 'src/utils/rules'
 import Input from 'src/components/Input'
 import authApi from 'src/api/auth.api'
-import { omit } from 'lodash'
+// không có tính năng tree-shaking
+// import { omit } from 'lodash'
+//import chỉ mỗi funcition omit
+import omit from 'lodash/omit'
+
 import { isAxiosUnprocessableEntityError } from 'src/utils/utils'
 import { ErrorResponseApi } from 'src/types/utils.type'
 import Button from 'src/components/Button'
@@ -71,7 +75,7 @@ export default function Register() {
   //debug
   // const values = watch()
   // console.log('2', values, errors)
-  console.log('errors', errors)
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   // const rules = getRules(getValues)
   // const password = watch('password') // cách nó sẽ bị render lại sẽ không tối ưu được

@@ -1,4 +1,5 @@
-import { isUndefined, omitBy } from 'lodash'
+import isUndefined from 'lodash/isUndefined'
+import omitBy from 'lodash/omitBy'
 import { ProductListConfig } from 'src/types/product.type'
 import useQueryParams from 'src/hooks/useQueryParams'
 
@@ -10,7 +11,7 @@ export default function useQueryConfig() {
   const queryConfig: QueryConfig = omitBy(
     {
       page: queryParams.page || '1',
-      limit: queryParams.limit || '10',
+      limit: queryParams.limit || '2',
       sort_by: queryParams.sort_by,
       exclude: queryParams.exclude,
       name: queryParams.name,
