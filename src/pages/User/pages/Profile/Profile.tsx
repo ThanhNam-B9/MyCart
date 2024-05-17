@@ -88,7 +88,7 @@ function Profile() {
       date_of_birth: new Date(1990, 0, 1),
       address: ''
     },
-    resolver: yupResolver(profileSchema)
+    resolver: yupResolver<FormData>(profileSchema)
   })
   const {
     register,
