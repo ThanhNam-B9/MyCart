@@ -234,7 +234,6 @@ function Profile() {
             </div>
           </div>
         </form>
-        <div></div>
       </FormProvider>
     </div>
   )
