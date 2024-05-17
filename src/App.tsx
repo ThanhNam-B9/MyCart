@@ -8,14 +8,15 @@ import { AppContext } from './contexts/appContext'
 
 function App() {
   const routerElements = useRouterElements()
+  console.log('APP')
 
-  const { restore } = useContext(AppContext)
+  const { reset } = useContext(AppContext)
   useEffect(() => {
-    LocalStorageEventTarget.addEventListener('removeAuthLS', restore)
+    LocalStorageEventTarget.addEventListener('removeAuthLS', reset)
     return () => {
-      LocalStorageEventTarget.removeEventListener('removeAuthLS', restore)
+      LocalStorageEventTarget.removeEventListener('removeAuthLS', reset)
     }
-  }, [restore])
+  }, [reset])
   return (
     <div>
       {routerElements}

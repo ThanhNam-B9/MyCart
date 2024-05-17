@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { produce } from 'immer'
-import { keyBy } from 'lodash'
 import { useEffect, useContext, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -13,6 +12,7 @@ import { AppContext } from 'src/contexts/appContext'
 import { Purchases } from 'src/types/purchases.type'
 import { formatCurrency, generateNameId } from 'src/utils/utils'
 import noProductInCart from 'src/assets/images/no_cart.png'
+import keyBy from 'lodash/keyBy'
 
 export interface ExtentPurshases extends Purchases {
   disable: boolean

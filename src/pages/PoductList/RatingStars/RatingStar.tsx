@@ -1,4 +1,5 @@
-import { omit } from 'lodash'
+import omit from 'lodash/omit'
+
 import { Fragment } from 'react'
 import { createSearchParams, useNavigate } from 'react-router-dom'
 import path from 'src/constants/path'

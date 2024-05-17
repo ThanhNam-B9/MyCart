@@ -12,13 +12,14 @@ import purchasesApi from 'src/api/purchases.api'
 import { purchasesStatus } from 'src/constants/purchase'
 import { toast } from 'react-toastify'
 import path from 'src/constants/path'
+import { useTranslation } from 'react-i18next'
 
 export default function ProductDetail() {
   const [currentIndexImg, setCurrentIndexImg] = useState([0, 5])
   const [activeImg, setActiveImg] = useState('')
   const [buyCount, setBuyCount] = useState<number>(1)
   const { nameId } = useParams()
-
+  const { t } = useTranslation('product')
   const id = getIdFormNameId(nameId as string)
 
   const imgRef = useRef<HTMLImageElement>(null)
@@ -271,7 +272,7 @@ export default function ProductDetail() {
       </div>
       <div className='container'>
         <div className='mt-8 bg-white p-4 shadow '>
-          <div className='rounded bg-gray-50 p-4 text-lg capitalize text-slate-700'>Mô tả sản phẩm</div>
+          <div className='rounded bg-gray-50 p-4 text-lg capitalize text-slate-700'>{t('product.desription')}</div>
           <div
             className='mx-4 mt-12 text-sm leading-loose'
             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.description) }}

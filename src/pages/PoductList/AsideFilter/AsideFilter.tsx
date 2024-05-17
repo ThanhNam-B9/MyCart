@@ -10,7 +10,7 @@ import { Schema, schema } from 'src/utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { NoUndefineField } from 'src/types/utils.type'
 import RatingStar from '../RatingStars'
-import { omit } from 'lodash'
+import omit from 'lodash/omit'
 
 import { ObjectSchema } from 'yup'
 import { QueryConfig } from 'src/hooks/useQueryConfig'
@@ -24,7 +24,7 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
   const {
     control,
     handleSubmit,
-
+    reset,
     trigger,
     formState: { errors }
   } = useForm<FormData>({
@@ -41,6 +41,7 @@ export default function AsideFilter({ queryConfig, categories }: Props) {
   }
 
   const handleDeleteAll = () => {
+    reset()
     navigate({
       pathname: path.home,
       search: createSearchParams(omit(queryConfig, ['price_min', 'price_max', 'rating_filter', 'category'])).toString()

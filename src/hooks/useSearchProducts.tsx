@@ -4,7 +4,7 @@ import { createSearchParams, useNavigate } from 'react-router-dom'
 import path from 'src/constants/path'
 import { Schema, schema } from 'src/utils/rules'
 import useQueryConfig from './useQueryConfig'
-import { omit } from 'lodash'
+import omit from 'lodash/omit'
 type FormData = Pick<Schema, 'name'>
 const nameSchema = schema.pick(['name'])
 export default function useSearchProducts() {
