@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import DOMPurify from 'dompurify'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import productApi from 'src/api/product.api'
 import ProductRating from 'src/components/ProductRating'
 import { Product as ProductType, ProductListConfig } from 'src/types/product.type'
@@ -13,6 +13,7 @@ import { purchasesStatus } from 'src/constants/purchase'
 import { toast } from 'react-toastify'
 import path from 'src/constants/path'
 import { useTranslation } from 'react-i18next'
+import { AppContext } from 'src/contexts/appContext'
 
 export default function ProductDetail() {
   const [currentIndexImg, setCurrentIndexImg] = useState([0, 5])
@@ -21,6 +22,7 @@ export default function ProductDetail() {
   const { nameId } = useParams()
   const { t } = useTranslation('product')
   const id = getIdFormNameId(nameId as string)
+  const { isAuthenticated } = useContext(AppContext)
 
   const imgRef = useRef<HTMLImageElement>(null)
   const navigate = useNavigate()
@@ -29,9 +31,7 @@ export default function ProductDetail() {
     queryKey: ['product', nameId],
     queryFn: () => productApi.getDetailProduct(id)
   })
-
   const product = productData?.data?.data
-
   const currentImages = useMemo(
     () => (product ? product?.images.slice(...currentIndexImg) : []),
     [product, currentIndexImg]
@@ -46,25 +46,39 @@ export default function ProductDetail() {
   const addToCartMutation = useMutation({
     mutationFn: (body: { product_id: string; buy_count: number }) => purchasesApi.addToCart(body)
   })
+  const isCheckLogin = () => {
+    if (!isAuthenticated) {
+      navigate(path.login)
+      return false
+    }
+    return true
+  }
+
   const handleAddToCart = () => {
-    const body = { product_id: product?._id as string, buy_count: buyCount }
-    addToCartMutation.mutate(body, {
-      onSuccess: (data) => {
-        toast.success(data.data.message, { autoClose: 1500 })
-        queryClient.invalidateQueries({ queryKey: ['listCart', { status: purchasesStatus.inCart }] })
-      }
-    })
+    const isCheck = isCheckLogin()
+    if (isCheck) {
+      const body = { product_id: product?._id as string, buy_count: buyCount }
+      addToCartMutation.mutate(body, {
+        onSuccess: (data) => {
+          toast.success(data.data.message, { autoClose: 1500 })
+          queryClient.invalidateQueries({ queryKey: ['listCart', { status: purchasesStatus.inCart }] })
+        }
+      })
+    }
   }
   const handleBuyNow = async () => {
-    const body = { product_id: product?._id as string, buy_count: buyCount }
+    const isCheck = isCheckLogin()
+    if (isCheck) {
+      const body = { product_id: product?._id as string, buy_count: buyCount }
 
-    const res = await addToCartMutation.mutateAsync(body)
-    console.log('res', res)
-    navigate(path.cart, {
-      state: {
-        purchaseId: res.data.data._id
-      }
-    })
+      const res = await addToCartMutation.mutateAsync(body)
+      console.log('res', res)
+      navigate(path.cart, {
+        state: {
+          purchaseId: res.data.data._id
+        }
+      })
+    }
   }
   const handleZome = (e: React.MouseEvent<HTMLImageElement, MouseEvent>) => {
     const rect = e.currentTarget.getBoundingClientRect()

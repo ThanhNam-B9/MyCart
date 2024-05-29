@@ -64,7 +64,7 @@ export default function Header() {
               </button>
             </div>
           </form>
-          <div className='cols-span-1 text-white ml-1'>
+          <div className='cols-span-1 text-white ml-1 bg-slate-700'>
             <Popover
               className='flex items-center justify-center hover:text-gray-300 cursor-pointer text-center relative'
               renderPopover={
